@@ -12,7 +12,7 @@ Le plugin crée automatiquement des pages pour tous les graphes :
 - graphcollection/xxx : Graphe des relations au sein de la collection xxx
 - graphall : Graphe des relations de l'ensemble des données (attention si vous avez beaucoup de relations)
 
-Un lien devrait apparaître sur les pages item (*items/show*) et collection (*collection/show*) menant vers les graphes correspondants.
+Un lien devrait apparaître sur les pages item (*items/show*) et collection (*collections/show*) menant vers les graphes correspondants.
 
 # Credits
 
