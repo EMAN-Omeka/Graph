@@ -1,0 +1,27 @@
+.legend-frame {
+	clear:both;
+}
+#GraphPreferences dd input {
+  floet:left;
+  clear: left;
+}
+#GraphPreferences dd p {
+  width:230px;
+  clear:right;
+  float:right;
+  margin:0;
+}
+#GraphPreferences dd {
+  clear:both;
+  width:300px;
+}
+dd#save-element {
+  width:95%;
+}
+.vert {
+  background-color: #11ff11;
+}
+.bleu {
+   background-color: #d5726d;
+   color: #111111;
+}
