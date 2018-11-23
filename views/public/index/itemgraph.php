@@ -21,8 +21,8 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
     </style>
 <p>    
   <a href="<?php echo WEB_ROOT; ?>/items/show/<?php echo $itemId; ?>">Voir la page de cet item</a><br />
-
  </p>
+<div>En plaçant le curseur sur une flèche, le nom de la relation apparait</div>
 <div id="mynetwork"></div>
 <div id="resleg"></div>
 <i class="fa fa-flag" style="visibility:hidden;"></i> 

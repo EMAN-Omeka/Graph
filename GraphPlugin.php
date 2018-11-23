@@ -13,24 +13,66 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    		'define_acl',  		
   		'define_routes',  	
   		'public_head',	
-  		'public_content_top'
+  		'public_content_top',
   );
-
+  
+  protected $_filters = array(
+  	'admin_navigation_main',
+  );
+  
+  public function filterAdminNavigationMain($nav)
+  {
+    $nav[] = array(
+                    'label' => __('Graph'),
+                    'uri' => url('graph')
+                  );
+    return $nav;
+  }
+  
   function hookPublicContentTop($args)
   {    
 		$params = Zend_Controller_Front::getInstance()->getRequest()->getParams();
 		$graphLink = "";
 		if ($params['controller'] == 'items' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'items-show') {
-			$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
-			print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations de la notice</a>";  				
+  		// L'item a-t-il des relations ? 
+  		if ($this->itemHasRelations($params['id'])) {
+    		$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
+    		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations de la notice</a>";	
+  		}				
     }
 		if ($params['controller'] == 'collections' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'collections-show') {
-			$graphLink = WEB_ROOT . "/graphcollection/" . $params['id'];
-			print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations dans la collection</a>";  				
+  		if ($this->collectionHasRelations($params['id'])) {  		
+  			$graphLink = WEB_ROOT . "/graphcollection/" . $params['id'];
+  			print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations dans la collection</a>";  	       		  }
     }
   	return true;
   }
 
+  private function itemHasRelations($id) {
+    $item = get_record_by_id('Item', $id);
+    $relations = ItemRelationsPlugin::prepareObjectRelations($item);
+    if ($relations) {
+      return true;        
+    }
+    $relations = ItemRelationsPlugin::prepareSubjectRelations($item);
+    if ($relations) {
+      return true;        
+    }
+    return false;
+  }
+  
+  private function collectionHasRelations($id) {
+    $db = get_db();
+    $collection = get_record_by_id('Collection', $id);
+    $query = "SELECT id FROM `{$db->Items}` WHERE collection_id = $id";
+    $records = $db->query($query)->fetchAll();
+    foreach ($records as $i => $itemId) {     
+      if ($this->itemHasRelations($itemId['id'])) {
+        return true;
+      }
+    }
+    return false;
+  }  
   public function hookPublicHead()
   {
  		queue_js_file('graph');
@@ -65,6 +107,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
   						)
   				)
   		);
+/*
    		$router->addRoute(
    				'eman_graph_timeline',
    				new Zend_Controller_Router_Route(
@@ -76,6 +119,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    						)
    				)
    		);
+*/
    		$router->addRoute(
    				'eman_graph_item',
    				new Zend_Controller_Router_Route(

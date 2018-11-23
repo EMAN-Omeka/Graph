@@ -20,6 +20,7 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
         }
     </style>
 <h2>Le graphe général</h2>
+<div>En plaçant le curseur sur une flèche, le nom de la relation apparait</div>
 <div id="mynetwork"></div>
 <div id="resleg"></div>
 <script type="text/javascript">

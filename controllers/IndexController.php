@@ -3,9 +3,16 @@ class Graph_IndexController extends Omeka_Controller_AbstractActionController
 {
   public function init() {
     // TODO : IHM admin pour couleurs collections
-		$this->collectionsPalette = array("#9a822f","#6fc5e3","#984a36","#77e4d3","#d5726d","#9adf9e","#f39672","#368097","#efc583","#57afb0","#9f6134","#47a98a","#d28976","#51955c","#9a635a","#b7d481","#8c6c4f","#cae6b9","#7c6027","#e8de9e","#3f7455","#db9f6c","#4d6b26","#dcb19a","#61642e","#8bb68a","#ac8a56","#819247","#bdb16d","#899466");      
+		$this->collectionsPalette = array("#9a822f","#6fc5e3","#984a36","#77e4d3","#d5726d","#9adf9e","#f39672","#368097","#efc583","#57afb0","#9f6134","#47a98a","#d28976","#51955c","#9a635a","#b7d481","#8c6c4f","#cae6b9","#7c6027","#e8de9e","#3f7455","#db9f6c","#4d6b26","#dcb19a","#61642e","#8bb68a","#ac8a56","#819247","#bdb16d","#899466");
+		$collections = get_recent_collections(50);
+// 		Zend_Debug::dump($collections);
+		$collectionsColors = array();
+		foreach ($collections as $id => $collection) {
+  		$collectionsColors[$collection['id']] = array_pop($this->collectionsPalette);
+		}
 		$this->iconTypes = unserialize(get_option('graph_preferences'));  
-		$this->legend = array();  
+		// TODO : Initialiser les couleurs des collections.
+		$this->legend = array('typeIcons' => $this->iconTypes, 'collectionColors' => $collectionsColors);  
   }
     
 	public function timelineAction() {
@@ -21,29 +28,40 @@ class Graph_IndexController extends Omeka_Controller_AbstractActionController
 // 			$itemDate = metadata($item, 'added');
 			$itemDate = metadata($item, array('Dublin Core', 'Date'), array('all' => true));
       if (! $itemDate) : continue; endif;
-			$time = strtotime($itemDate[0]);
-			$itemDateStart = date('Y-m-d', $time);
+      $date = date_create_from_format("Y", $itemDate[0]);
+      if ($date === FALSE) {
+  			$time = strtotime($itemDate[0]);
+      } else {
+    		$time = $date->getTimeStamp();          
+      }			
+      $itemDateStart = date('Y-m-d', $time);
 			$itemDateEnd = '';			
    		$className = 'bleu';			
    		$type= 'box';
-			if (isset($itemDate[1])) {
-//   		Zend_Debug::dump($itemDate[1]);
-    		$timeEnd = strtotime($itemDate[1]);
-//         if ($timeEnd - $time > 86400) {
-        if ($timeEnd > $time) {
-      		$itemDateEnd = ", end: '" . date('Y-m-d', $timeEnd) . "'";  			      		
+			if (isset($itemDate[1])) { 			
+        $date = date_create_from_format("Y", $itemDate[1]);
+        if ($date === FALSE) {
+          $timeEnd = strtotime($date);
+        } else {
+      		$timeEnd = $date->getTimeStamp();          
+        }
+        if ($timeEnd > $time) {	
+      		$itemDateEnd = ", end: '" . date('Y-m-d', $timeEnd) . "'";  
+/*
+      		Zend_Debug::dump($itemDate[1]);
+      		Zend_Debug::dump($itemDateStart);
+          Zend_Debug::dump($itemDateEnd); 
+*/     					      		
           $className = 'vert';
           $type = 'range';
-    		} else {
-      		continue;
     		}
-			} 
-      echo $num . ' : ' . $time . '/' . $timeEnd . '|' . $itemDate[0] . ' / ' . $itemDate[1] .'<br />'; 
+    	} 
+//       echo $num . ' : ' . $time . '/' . $timeEnd . '|' . $itemDate[0] . ' / ' . $itemDate[1] .'<br />'; 
 			$borderColor = "#9999999";
 			if (! $itemTitle) {
 				$itemTitle = "[Sans Titre]";
 			}
-				$nodes[$itemId] =  "{id: $itemId, content: '$itemTitle', type: '$type', className: '$className', start:'$itemDateStart' $itemDateEnd}";
+      $nodes[$itemId] =  "{id: $itemId, content: '$itemTitle', type: '$type', className: '$className', start:'$itemDateStart' $itemDateEnd}";
 		}		
 		$this->view->nodes = $nodes;
 		$this->view->content = '';
@@ -325,13 +343,14 @@ class Graph_IndexController extends Omeka_Controller_AbstractActionController
     foreach ($this->legend['collectionColors'] as $id => $color) {
       // Collection Name
       $collection = get_record_by_id('Collection', $id);
+//       if (! $collection) : continue; endif;       
       $collectionName = $title = strip_tags(metadata($collection, array('Dublin Core' ,'Title')));
       if (strlen($collectionName) > 25) {
         $collectionName = substr($collectionName, 0, 20) . ' ...';
       }
       $icon = '{"size": 40, "face": "FontAwesome", "code": "\uf111", "color": "' . $color . '"}';
       $x += 120;
-      $legend['colors'][] = '{"id": ' . ($i + 1000) . ', "x": ' . $x . ', "y": +10, "font": {"size": 20, "multi": "html"}, "label": "' . addslashes($collectionName) . '","title": "' . $title . '", "widthConstraint": {"maximum" : 10}, "value": 1, "fixed": "true", "physics": false, "shape": "icon", "icon": ' . $icon . '}';
+      $legend['colors'][] = '{"id": ' . ($i + 1000) . ', "x": ' . $x . ', "y": +10, "font": {"size": 20, "multi": "html"}, "label": "' . addslashes($collectionName) . '","title": "' . addslashes($title) . '", "widthConstraint": {"maximum" : 10}, "value": 1, "fixed": "true", "physics": false, "shape": "icon", "icon": ' . $icon . '}';
       $i++;
     }    
     return $legend;
