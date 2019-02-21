@@ -216,7 +216,7 @@ class Graph_IndexController extends Omeka_Controller_AbstractActionController
 				$relation_present = true;
 			}
 		}
-
+    $this->view->collectionId = $params['collectionid'];
 		$this->view->nodes = $nodes;
 		$this->view->edges = $edges;
     $this->view->legende = $this->buildLegend();			

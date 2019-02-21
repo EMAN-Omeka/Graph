@@ -20,6 +20,7 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
         }
         
     </style>
+<a href="<?php echo WEB_ROOT; ?>/collections/show/<?php echo $collectionId; ?>">Voir la page de cette collection</a><br />    
 <div>En plaçant le curseur sur une flèche, le nom de la relation apparait</div>
    
 <div id="mynetwork"></div>

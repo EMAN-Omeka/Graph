@@ -33,23 +33,26 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
   {    
 		$params = Zend_Controller_Front::getInstance()->getRequest()->getParams();
 		$graphLink = "";
-		if ($params['controller'] == 'items' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'items-show') {
-  		// L'item a-t-il des relations ? 
-  		if ($this->itemHasRelations($params['id'])) {
-    		$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
-    		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations de la notice</a>";	
-  		}				
-    }
-		if ($params['controller'] == 'collections' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'collections-show') {
-  		if ($this->collectionHasRelations($params['id'])) {  		
-  			$graphLink = WEB_ROOT . "/graphcollection/" . $params['id'];
-  			print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations dans la collection</a>";  	       		  }
+		if (isset($params['controller'])) {
+  		if ($params['controller'] == 'items' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'items-show') {
+    		// L'item a-t-il des relations ? 
+    		if ($this->itemHasRelations($params['id'])) {
+      		$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
+      		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations de la notice</a>";	
+    		}
+      }				
+  		if ($params['controller'] == 'collections' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'collections-show') {
+    		if ($this->collectionHasRelations($params['id'])) {  		
+    			$graphLink = WEB_ROOT . "/graphcollection/" . $params['id'];
+    			print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations dans la collection</a>";  	       		  }
+      }
     }
   	return true;
   }
 
   private function itemHasRelations($id) {
     $item = get_record_by_id('Item', $id);
+    if (! $item) {return false;}
     $relations = ItemRelationsPlugin::prepareObjectRelations($item);
     if ($relations) {
       return true;        
