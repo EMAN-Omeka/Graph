@@ -1,7 +1,8 @@
 <?php
-echo head(array('bodyclass' => 'items show'));
+echo head(array('bodyclass' => 'graph all', 'title' => 'Les relations entre toutes les notices du corpus'));
 
-$visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
+// include_once('plugins/Graph/graphModel.php');
+$visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>  
 
 <script type="text/javascript" src="<?php echo $visdir; ?>vis.min.js"></script>
     <link href="<?php echo $visdir; ?>vis.min.css" rel="stylesheet" type="text/css" />
@@ -16,10 +17,10 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
             clear:both;
         }
         #resleg {
-            height: 200px;
+            height: <?php echo $height; ?>px;
         }
     </style>
-<h2>Le graphe général</h2>
+<h2><?php echo $pageTitle; ?></h2>
 <div>En plaçant le curseur sur une flèche, le nom de la relation apparait</div>
 <div id="mynetwork"></div>
 <div id="resleg"></div>
@@ -44,10 +45,10 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
     var network = new vis.Network(container, data, options);
     
    // Legend
-    var legende = document.getElementById('resleg');
-    var nodesleg = new vis.DataSet([<?php echo implode(',', $legende['icons']); ?>]); 
-    <?php echo 'legendeElement = [' . implode(',', $legende['colors']) . '];'; ?>
-    nodesleg.add(legendeElement);     
+    var caption = document.getElementById('resleg');
+    var nodesleg = new vis.DataSet([<?php echo implode(',', $caption['icons']); ?>]); 
+    <?php echo 'captionElement = [' . implode(',', $caption['colors']) . '];'; ?>
+    nodesleg.add(captionElement);     
     var datalegs = {
       nodes: nodesleg,
     }    
@@ -56,7 +57,7 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
     	    navigationButtons: false,    	    
     	    zoomView: false,      
     }
-    var leg = new vis.Network(legende, datalegs, options);   
+    var leg = new vis.Network(caption, datalegs, options);   
     var x = - leg.clientWidth / 2 - 200;
     var y = - leg.clientHeight / 2 + 200;
     var step = 120;
@@ -93,23 +94,10 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
       });        
     }      
   });
-    network.once('initRedraw', function() {
-      if (lastClusterZoomLevel === 0) {
-          lastClusterZoomLevel = network.getScale();
-      }
-  	});  	
-  function clusterByCid() {
-      var clusterOptionsByData = {
-          joinCondition:function(childOptions) {
-              return childOptions.cid == 1;
-          },
-          clusterNodeProperties: {id:'cidCluster', borderWidth:3, shape:'database'}
-      };
-      network.cluster(clusterOptionsByData);
-  }
 </script>
 <div id="dialog-confirm" style="background:white;display:none;" title="Que souhaitez vous voir ?">
-</div>
+</div>  
 
-<?php echo foot(); ?>
+<?php  
+echo foot(); ?>
 

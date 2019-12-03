@@ -1,5 +1,5 @@
 <?php
-echo head(array('bodyclass' => 'items show', 'title' => 'Les relations de la notice'));
+echo head(array('bodyclass' => 'items show', 'title' => 'Les relations des documents de la notice'));
 
 $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
 
@@ -19,9 +19,9 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
             height: <?php echo $height; ?>px;
         }                
     </style>
-<h2>Les relations de la notice</h2>    
+<h2>Les relations des documents de la notice</h2>    
 <p>    
-  <a href="<?php echo WEB_ROOT; ?>/items/show/<?php echo $itemId; ?>">Voir la page de cet item</a><br />
+  <a href="<?php echo WEB_ROOT; ?>/items/show/<?php echo $itemId; ?>">Voir la page de la notice</a><br />
  </p>
 <div>En plaçant le curseur sur une flèche, le nom de la relation apparait</div>
 <div id="mynetwork"></div>
@@ -65,13 +65,13 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
 
 	    var network = new vis.Network(container, data, options);
 
-   // Legend
-    var legende = document.getElementById('resleg');
+   // Caption
+    var caption = document.getElementById('resleg');
     options['layout']['hierarchical'] = false;
         
-    var nodesleg = new vis.DataSet([<?php echo implode(',', $legende['icons']); ?>]);
-    <?php echo 'legendeElement = [' . implode(',', $legende['colors']) . '];'; ?>
-    nodesleg.add(legendeElement);     
+    var nodesleg = new vis.DataSet([<?php echo implode(',', $caption['icons']); ?>]);
+    <?php echo 'captionElement = [' . implode(',', $caption['colors']) . '];'; ?>
+    nodesleg.add(captionElement);     
     var datalegs = {
       nodes: nodesleg,
     }    
@@ -81,7 +81,7 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
     	    navigationButtons: false,    	    
     	    zoomView: false,      
     }
-    var leg = new vis.Network(legende, datalegs, options);   
+    var leg = new vis.Network(caption, datalegs, options);   
     var x = - leg.clientWidth / 2 - 200;
     var y = - leg.clientHeight / 2 + 200;
     var step = 120;
@@ -99,12 +99,12 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
           modal: true,
           buttons: {
             "Voir la notice": function() {
-              url = "<?php echo WEB_ROOT . '/items/show/'?>" + LinkFromNode(params['nodes'][0]);      
+              url = "<?php echo WEB_ROOT . '/files/show/'?>" + LinkFromNode(params['nodes'][0]);      
               $( this ).dialog( "close" );
               window.open(url);
             },
             "Voir le graphe": function() {
-              url = "<?php echo WEB_ROOT . '/graphitem/'?>" + LinkFromNode(params['nodes'][0]);      
+              url = "<?php echo WEB_ROOT . '/graphfile/'?>" + LinkFromNode(params['nodes'][0]);      
               $( this ).dialog( "close" );
               window.open(url);
             }

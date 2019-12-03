@@ -40,12 +40,25 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
       		$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
       		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations de la notice</a>";	
     		}
+/*
+    		if ($this->itemHasfiles($params['id'])) {
+      		$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
+      		print "<br /></br ><a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des documents de la notice</a>";	
+    		}  
+*/  		
       }				
   		if ($params['controller'] == 'collections' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'collections-show') {
     		if ($this->collectionHasRelations($params['id'])) {  		
     			$graphLink = WEB_ROOT . "/graphcollection/" . $params['id'];
     			print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations dans la collection</a>";  	       		  }
       }
+  		if ($params['controller'] == 'files' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'files-show') {
+    		// Le fichier a-t-il des relations ? 
+    		if ($this->fileHasRelations($params['id'])) {
+      		$graphLink = WEB_ROOT . "/graphfile/" . $params['id'];
+      		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations du fichier</a>";	
+    		}
+      }	      
     }
   	return true;
   }
@@ -64,6 +77,29 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
     return false;
   }
   
+  private function itemHasFiles($id) {
+    $db = get_db();
+    $files = $db->query("SELECT 1 FROM `$db->Files` WHERE item_id = " . $id)->fetchAll();
+    if ($files[0][1]) {
+      return true;
+    }    
+    return false;
+  }
+  
+  private function fileHasRelations($id) {
+    $file = get_record_by_id('File', $id);
+    if (! $file) {return false;}
+    $relations = FileRelationsPlugin::prepareObjectRelations($file);
+    if ($relations) {
+      return true;        
+    }
+    $relations = FileRelationsPlugin::prepareSubjectRelations($file);
+    if ($relations) {
+      return true;        
+    }
+    return false;
+  }
+    
   private function collectionHasRelations($id) {
     $db = get_db();
     $collection = get_record_by_id('Collection', $id);
@@ -96,7 +132,18 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
     						)
     				)
     		);
-    		return;
+    		$router->addRoute(
+    				'eman_graph_colors_admin_page',
+    				new Zend_Controller_Router_Route(
+    						'graph/colors',
+    						array(
+    								'module' => 'graph',
+    								'controller'   => 'page',
+    								'action'       => 'preferences-colors',
+    						)
+    				)
+    		);
+    		return;    		
       }
 
   		$router->addRoute(
@@ -133,7 +180,18 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    								'action'       => 'itemgraph',
    						)
    				)
-   		);   		 
+   		);  
+   		$router->addRoute(
+   				'eman_graph_file',
+   				new Zend_Controller_Router_Route(
+   						'graphfile/:fileid',
+   						array(
+   								'module' => 'graph',
+   								'controller'   => 'index',
+   								'action'       => 'filegraph',
+   						)
+   				)
+   		);    		 		 
    		$router->addRoute(
    				'eman_graph_collection',
    				new Zend_Controller_Router_Route(
@@ -151,7 +209,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    						'graphall',
    						array(
    								'module' => 'graph',
-   								'controller'   => 'index',
+   								'controller'   => 'graph',
    								'action'       => 'allgraph',
    						)
    				)
@@ -167,7 +225,30 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
   								'itemid'					=> ''
   						)
   				)
-  		);   		  		 
+  		); 
+   		$router->addRoute(
+   				'eman_graph_choix',
+   				new Zend_Controller_Router_Route(
+   						'graph/choix',
+   						array(
+   								'module' => 'graph',
+   								'controller'   => 'graph',
+   								'action'       => 'choix',
+   						)
+   				)
+   		); 
+   		$router->addRoute(
+   				'eman_graph_colajax',
+   				new Zend_Controller_Router_Route(
+   						'graph/colajax/:text',
+   						array(
+   								'module' => 'graph',
+   								'controller'   => 'graph',
+   								'action'       => 'colajax',
+   								'text' => '',
+   						)
+   				)
+   		);     		  		  		  		 
   }
 
   function hookDefineAcl($args)
@@ -178,6 +259,9 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
 public function getGraphOptions() {
     $options = "var options = {
     	  nodes:{
+          shapeProperties: {
+            interpolation: false    // 'true' for intensive zooming
+          },         	  
     	    borderWidth: 3,
     	    borderWidthSelected: 4,
     	    brokenImage:undefined,
@@ -289,11 +373,11 @@ public function getGraphOptions() {
     	    title:undefined,
     	    width: 1,
     	    widthConstraint: 200,    	    
-    	    value: 1
+//     	    value: 1
     	  },
     	  layout: {
-    	    randomSeed: 15,
-    	    improvedLayout:true,
+    	    randomSeed: 25,
+    	    improvedLayout:false,
     	    hierarchical: {
     	      enabled:false,
     	      levelSeparation: 150,
@@ -310,16 +394,19 @@ public function getGraphOptions() {
     	  }, 
     	  physics: {
       	  enabled: true,
-      	  solver:'repulsion',
+      	  solver:'forceAtlas2Based',
       	  stabilization: {
-            enabled: true,            	    	         
+            enabled: true,
+            fit: true,            	    	         
        	  },
        	  repulsion: {
          	  centralGravity: 0,
-         	  springLength: 100,
+         	  springLength: 180,
+         	  springConstant: 0.5,
          	  nodeDistance:150,
          	},
-//           adaptiveTimestep: true,        	  
+//           adaptiveTimestep: true,    
+          timestep: 0.2,    	  
         },
         manipulation: {
           enabled: false,             	    	         

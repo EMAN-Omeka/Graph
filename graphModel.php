@@ -1,31 +1,24 @@
-<?php
-echo head(array('bodyclass' => 'items show', 'title' => 'Les relations des notices de la collection'));
+<?php $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>  
 
-$visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
-
-<script type="text/javascript" src="<?php echo $visdir; ?>vis.js"></script>
-<link href="<?php echo $visdir; ?>vis.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="<?php echo $visdir; ?>vis.min.js"></script>
+    <link href="<?php echo $visdir; ?>vis.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="<?php echo WEB_ROOT; ?>/plugins/Graph/font-awesome/css/font-awesome.min.css">
 <link rel="stylesheet" href="<?php echo WEB_ROOT; ?>/plugins/Graph/css/graph.css">
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
     <style type="text/css">
-        #mynetwork {
+        #mynetwork, #resleg {
             width: 100%;
             height: 800px;
             border: 1px solid lightgray;
+            clear:both;
         }
         #resleg {
             height: <?php echo $height; ?>px;
         }
-        
     </style>
-<h2>Les relations des notices de la collection</h2>
-<a href="<?php echo WEB_ROOT; ?>/collections/show/<?php echo $collectionId; ?>">Voir la page de cette collection</a><br />    
+<h2><?php echo $pageTitle; ?></h2>
 <div>En plaçant le curseur sur une flèche, le nom de la relation apparait</div>
-   
 <div id="mynetwork"></div>
-<h3><b>Légende des icônes et des couleurs</b></h3>
 <div id="resleg"></div>
 <script type="text/javascript">
     var nodes = new vis.DataSet([
@@ -42,10 +35,11 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
         nodes: nodes,
         edges: edges
     };
-      <?php print GraphPlugin::getGraphOptions(); ?>
 
+    <?php print GraphPlugin::getGraphOptions(); ?>
+    
     var network = new vis.Network(container, data, options);
-
+    
    // Legend
     var legende = document.getElementById('resleg');
     var nodesleg = new vis.DataSet([<?php echo implode(',', $legende['icons']); ?>]); 
@@ -54,8 +48,7 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
     var datalegs = {
       nodes: nodesleg,
     }    
-
-    options['interaction'] = {
+    options.interaction = {
     	    keyboard: false,
     	    navigationButtons: false,    	    
     	    zoomView: false,      
@@ -63,7 +56,12 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
     var leg = new vis.Network(legende, datalegs, options);   
     var x = - leg.clientWidth / 2 - 200;
     var y = - leg.clientHeight / 2 + 200;
-    var step = 120;          
+    var step = 120;
+          
+    var clusterIndex = 0;
+    var clusters = [];
+    var lastClusterZoomLevel = 0;
+    var clusterFactor = 1.5;
     
     // Click ouvre la page de l'item
     network.on("click", function (params) {
@@ -91,8 +89,7 @@ $visdir = WEB_ROOT . '/plugins/Graph/javascripts/vis/'; ?>
         });
       });        
     }      
-  });   
+  });
 </script>
 <div id="dialog-confirm" style="background:white;display:none;" title="Que souhaitez vous voir ?">
-</div>
-<?php echo foot(); ?>
+</div>  

@@ -25,3 +25,67 @@ dd#save-element {
    background-color: #d5726d;
    color: #111111;
 }
+
+#graphchoix div:nth-of-type(1) {
+/*   width: 286px; */
+  margin-right:20px;
+  float: left;
+}
+#graphchooserelation {
+  clear:both;
+}
+#collections {
+  max-height: 200px; 
+}
+#graphchoix div:nth-of-type(2) {
+  clear:right;  
+}
+#graphchoix div:nth-of-type(2) label,
+#graphchoix div:nth-of-type(3) label,
+#graphchoix div:nth-of-type(4) label {
+  padding-top:0;
+  padding-left:.5em;
+  
+}
+#graphchoix div:nth-of-type(2) input,
+#graphchoix div:nth-of-type(3) input,
+#graphchoix div:nth-of-type(4) input {
+  float:left;
+  clear:none;
+}
+#graphchoix div:nth-of-type(3),
+#graphchoix div:nth-of-type(4) {
+  clear:right;  
+}
+#graphchooserelation div:nth-of-type(1) {
+  width:350px;
+  clear:none;
+  float:left;
+}
+#graphchooserelation div:nth-of-type(1) label {
+  float:left !important;
+  clear:both !important;
+  font-size:24px;
+  font-weight:normal;
+  display:block;
+}
+#graphchooserelation div:nth-of-type(1) #relations {
+  width: 344px;
+  clear:left !important;
+  display:block;  
+}
+#graphchooserelation div:nth-of-type(2) {
+  float:left;
+  clear:right;
+  width:350px;  `
+  display:block;    
+  margin-top:3.3em;
+  margin-left:1em;  
+}
+
+#graphchoix div:nth-of-type(4) input {
+  display:inline;
+}
+#graphchoix div:nth-of-type(4) label {
+  display:inline;
+}
