@@ -29,4 +29,5 @@ Ce plugin utilise la librairie Vis.js (http://visjs.org/).
 
 **Réalisé avec le soutien du consortium Cahier.**
 
+Nouvelle version réalisée avec le soutien de l’[IRIHS – Université de Rouen Normandie](https://irihs.univ-rouen.fr/).
 
