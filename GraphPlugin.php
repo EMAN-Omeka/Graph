@@ -1,25 +1,25 @@
 <?php
 
-/* 
+/*
  * E-man Plugin
  *
  * Functions to customize Omeka for the E-man Project
  *
  */
 
-class GraphPlugin extends Omeka_Plugin_AbstractPlugin 
+class GraphPlugin extends Omeka_Plugin_AbstractPlugin
 {
   protected $_hooks = array(
-   		'define_acl',  		
-  		'define_routes',  	
-  		'public_head',	
+   		'define_acl',
+  		'define_routes',
+  		'public_head',
   		'public_content_top',
   );
-  
+
   protected $_filters = array(
   	'admin_navigation_main',
   );
-  
+
   public function filterAdminNavigationMain($nav)
   {
     $nav[] = array(
@@ -28,39 +28,36 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
                   );
     return $nav;
   }
-  
+
   function hookPublicContentTop($args)
-  {    
+  {
+/*
+  TODO : This code should disappear as the link will be mananbed in UiTemplates
 		$params = Zend_Controller_Front::getInstance()->getRequest()->getParams();
 		$graphLink = "";
 		if (isset($params['controller'])) {
   		if ($params['controller'] == 'items' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'items-show') {
-    		// L'item a-t-il des relations ? 
+    		// L'item a-t-il des relations ?
     		if ($this->itemHasRelations($params['id'])) {
       		$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
-      		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations de la notice</a>";	
+      		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations de la notice</a>";
     		}
-/*
-    		if ($this->itemHasfiles($params['id'])) {
-      		$graphLink = WEB_ROOT . "/graphitem/" . $params['id'];
-      		print "<br /></br ><a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des documents de la notice</a>";	
-    		}  
-*/  		
-      }				
+      }
   		if ($params['controller'] == 'collections' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'collections-show') {
-    		if ($this->collectionHasRelations($params['id'])) {  		
+    		if ($this->collectionHasRelations($params['id'])) {
     			$graphLink = WEB_ROOT . "/graphcollection/" . $params['id'];
     			print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations dans la collection</a>";  	       		  }
       }
   		if ($params['controller'] == 'files' && $params['action'] == 'show' || $params['controller'] == 'eman' && $params['action'] == 'files-show') {
-    		// Le fichier a-t-il des relations ? 
+    		// Le fichier a-t-il des relations ?
     		if ($this->fileHasRelations($params['id'])) {
       		$graphLink = WEB_ROOT . "/graphfile/" . $params['id'];
-      		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations du fichier</a>";	
+      		print "<a class='eman-edit-link' style='margin-top:0px;' href='$graphLink'>Afficher la visualisation des relations du fichier</a>";
     		}
-      }	      
+      }
     }
   	return true;
+*/
   }
 
   private function itemHasRelations($id) {
@@ -68,55 +65,55 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
     if (! $item) {return false;}
     $relations = ItemRelationsPlugin::prepareObjectRelations($item);
     if ($relations) {
-      return true;        
+      return true;
     }
     $relations = ItemRelationsPlugin::prepareSubjectRelations($item);
     if ($relations) {
-      return true;        
+      return true;
     }
     return false;
   }
-  
+
   private function itemHasFiles($id) {
     $db = get_db();
     $files = $db->query("SELECT 1 FROM `$db->Files` WHERE item_id = " . $id)->fetchAll();
     if ($files[0][1]) {
       return true;
-    }    
+    }
     return false;
   }
-  
+
   private function fileHasRelations($id) {
     $file = get_record_by_id('File', $id);
     if (! $file) {return false;}
     $relations = FileRelationsPlugin::prepareObjectRelations($file);
     if ($relations) {
-      return true;        
+      return true;
     }
     $relations = FileRelationsPlugin::prepareSubjectRelations($file);
     if ($relations) {
-      return true;        
+      return true;
     }
     return false;
   }
-    
+
   private function collectionHasRelations($id) {
     $db = get_db();
     $collection = get_record_by_id('Collection', $id);
     $query = "SELECT id FROM `{$db->Items}` WHERE collection_id = $id";
     $records = $db->query($query)->fetchAll();
-    foreach ($records as $i => $itemId) {     
+    foreach ($records as $i => $itemId) {
       if ($this->itemHasRelations($itemId['id'])) {
         return true;
       }
     }
     return false;
-  }  
+  }
   public function hookPublicHead()
   {
  		queue_js_file('graph');
-  }  
-  
+  }
+
   function hookDefineRoutes($args)
   {
       $router = $args['router'];
@@ -143,7 +140,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
     						)
     				)
     		);
-    		return;    		
+    		return;
       }
 
   		$router->addRoute(
@@ -180,7 +177,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    								'action'       => 'itemgraph',
    						)
    				)
-   		);  
+   		);
    		$router->addRoute(
    				'eman_graph_file',
    				new Zend_Controller_Router_Route(
@@ -191,7 +188,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    								'action'       => 'filegraph',
    						)
    				)
-   		);    		 		 
+   		);
    		$router->addRoute(
    				'eman_graph_collection',
    				new Zend_Controller_Router_Route(
@@ -202,7 +199,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    								'action'       => 'collectiongraph',
    						)
    				)
-   		);  
+   		);
    		$router->addRoute(
    				'eman_graph',
    				new Zend_Controller_Router_Route(
@@ -213,11 +210,11 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    								'action'       => 'allgraph',
    						)
    				)
-   		); 
+   		);
    		$router->addRoute(
   				'graph_item_ajax',
   				new Zend_Controller_Router_Route(
-  						'graph/:itemid', 
+  						'graph/:itemid',
   						array(
   								'module' => 'graph',
   								'controller'   => 'index',
@@ -225,7 +222,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
   								'itemid'					=> ''
   						)
   				)
-  		); 
+  		);
    		$router->addRoute(
    				'eman_graph_choix',
    				new Zend_Controller_Router_Route(
@@ -236,7 +233,7 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    								'action'       => 'choix',
    						)
    				)
-   		); 
+   		);
    		$router->addRoute(
    				'eman_graph_colajax',
    				new Zend_Controller_Router_Route(
@@ -248,20 +245,20 @@ class GraphPlugin extends Omeka_Plugin_AbstractPlugin
    								'text' => '',
    						)
    				)
-   		);     		  		  		  		 
+   		);
   }
 
   function hookDefineAcl($args)
   {
   	$acl = $args['acl'];
   }
-  
+
 public function getGraphOptions() {
     $options = "var options = {
     	  nodes:{
           shapeProperties: {
             interpolation: false    // 'true' for intensive zooming
-          },         	  
+          },
     	    borderWidth: 3,
     	    borderWidthSelected: 4,
     	    brokenImage:undefined,
@@ -269,7 +266,7 @@ public function getGraphOptions() {
     	      x:false,
     	      y:false
     	    },
-          shape: 'icon', 'icon': {'size': 50, 'face': 'FontAwesome', 'code': '\uf15c', 'color': '#899466'},    	    
+          shape: 'icon', 'icon': {'size': 50, 'face': 'FontAwesome', 'code': '\uf15c', 'color': '#899466'},
     	    font: {
     	      color: '#343434',
     	      size: 14, // px
@@ -313,10 +310,6 @@ public function getGraphOptions() {
 */
     	  },
     	  edges: {
-    	    smooth: {
-    	      type: 'discrete',
-    	      roundness: 0.2
-    	    },
     	    arrows: {
     	      to:     {enabled: true, scaleFactor:1, type:'arrow'},
     	      middle: {enabled: false, scaleFactor:1},
@@ -367,12 +360,12 @@ public function getGraphOptions() {
     	    },
     	    smooth: {
     	      enabled: true,
-    	      type: 'dynamic',
+    	      type: 'continuous',
     	      roundness: 1
     	    },
     	    title:undefined,
     	    width: 1,
-    	    widthConstraint: 200,    	    
+    	    widthConstraint: 200,
 //     	    value: 1
     	  },
     	  layout: {
@@ -389,15 +382,15 @@ public function getGraphOptions() {
     	  },
     	  interaction:{
     	    keyboard: false,
-    	    navigationButtons: true,    	    
+    	    navigationButtons: true,
     	    zoomView: true,
-    	  }, 
+    	  },
     	  physics: {
       	  enabled: true,
       	  solver:'forceAtlas2Based',
       	  stabilization: {
             enabled: true,
-            fit: true,            	    	         
+            fit: true,
        	  },
        	  repulsion: {
          	  centralGravity: 0,
@@ -405,26 +398,24 @@ public function getGraphOptions() {
          	  springConstant: 0.5,
          	  nodeDistance:150,
          	},
-//           adaptiveTimestep: true,    
-          timestep: 0.2,    	  
+//           adaptiveTimestep: true,
+          timestep: 0.2,
         },
         manipulation: {
-          enabled: false,             	    	         
+          enabled: false,
         },
         interaction: {
-          dragNodes: false,             	    	         
+          dragNodes: false,
           navigationButtons: true,
           hover: true,
           hoverConnectedEdges: true,
         },
-/*
         configure: {
-          enabled: true,             	    	         
+          enabled: false,
         },
-*/
     };";
 
-    return $options;  
+    return $options;
   }
-     
+
 }
